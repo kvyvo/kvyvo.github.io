@@ -15,27 +15,33 @@ apply();
 const pic = $('heroSvg') ? hero($('heroSvg'), $('heroCap')) : null;
 
 /* ---------- the island: section name, scroll ring, ⌘K ---------- */
-const SECTIONS = [['top', 'islTop'], ['work', 'islWork'], ['how', 'islHow']].filter(([id]) => $(id));
+const SECTIONS = [['top', 'islTop'], ['about', 'islAbout'], ['services', 'islServices'], ['work', 'islWork'], ['contact', 'islContact']].filter(([id]) => $(id));
 let section = SECTIONS[0]?.[1] ?? 'islTop';
 const THEME_NEXT = { auto: 'dark', dark: 'light', light: 'auto' };
 const THEME_LABEL = { auto: 'themeAuto', dark: 'themeDark', light: 'themeLight' };
 const jump = (id) => $(id)?.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth' });
 const open = (url) => { location.href = url; };
+const LINKS = { telegram: 'https://t.me/kvyvo', instagram: 'https://www.instagram.com/kvyvo_', ranteis: 'https://ranteis.one' };
+
+async function copyDiscord() {
+  try { await navigator.clipboard.writeText('kvyvo'); } catch { /* no clipboard: the handle is on screen anyway */ }
+  return t('copied');
+}
 
 const commands = () => [
-  { title: t('cmdOpenKalka'), hint: '↗', run: () => open(KALKA) },
+  { title: t('cmdTelegram'), hint: '↗', run: () => open(LINKS.telegram) },
+  { title: t('cmdDiscord'), run: () => { copyDiscord(); return t('copied'); } },
+  { title: t('cmdInstagram'), run: () => open(LINKS.instagram) },
+  { title: t('cmdRanteis'), run: () => open(LINKS.ranteis) },
+  { title: t('cmdOpenKalka'), run: () => open(KALKA) },
   ...PROJECTS.map(({ id }) => ({ title: t('cmdRepo', { name: id }), run: () => open(`${GH}/${id}`) })),
   { title: t('cmdProfile'), run: () => open(GH) },
-  ...(pic ? [
-    { title: t('cmdWork'), run: () => jump('work') },
-    { title: t('cmdHow'), run: () => jump('how') },
-    { title: t('cmdTop'), run: () => jump('top') },
-  ] : []),
+  ...SECTIONS.slice(1).map(([id, key]) => ({ title: t('cmdGo', { name: t(key) }), run: () => jump(id) })),
   { title: t('cmdLang'), run: () => { switchLang(); return t('toastLang'); } },
   { title: t('cmdTheme', { mode: t(THEME_LABEL[THEME_NEXT[getTheme()]]) }), run: () => t('cmdTheme', { mode: t(THEME_LABEL[nextTheme()]) }) },
 ];
 const island = createIsland({ commands });
-$('paletteKey').textContent = MAC ? '⌘K' : 'Ctrl K';
+$('paletteKey').textContent = MAC ? '⌘k' : 'ctrl k';
 island.summary(t(document.body.dataset.page === '404' ? 'nfEyebrow' : section));
 
 if (SECTIONS.length) {
@@ -71,6 +77,7 @@ function switchLang() {
   island.summary(t(document.body.dataset.page === '404' ? 'nfEyebrow' : section));
 }
 $('langBtn').addEventListener('click', () => { switchLang(); island.toast(t('toastLang')); });
+document.querySelectorAll('[data-copy=discord]').forEach((b) => b.addEventListener('click', async () => island.toast(await copyDiscord())));
 
 /* ---------- things arrive as they scroll in: fade, rise, unblur ---------- */
 const rv = [...document.querySelectorAll('.rv')];

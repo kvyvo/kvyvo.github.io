@@ -1,5 +1,6 @@
 // The hero picture borrows kalka's idea: a sheet lies on a screen, the screen glows through
-// the paper under one part at a time. Here the sheet has four parts, one per project.
+// the paper under one part at a time. Here the sheet has four parts: one per kind of work,
+// each shown by a real project.
 // Each part is a link to its project card.
 import { SPRING, fromApple } from './spring.js';
 import { Springs, swap, reduced } from './motion.js';
@@ -139,7 +140,7 @@ export function hero(svg, caption) {
   });
 
   let cur = 0;
-  const say = (n) => caption && swap(caption, t('heroPart', { name: PROJECTS[n].id, n: n + 1, N }));
+  const say = (n) => caption && swap(caption, t('heroPart', { name: PROJECTS[n].id, svc: t(`sv${n}`), n: n + 1, N }));
   const mark = (n, done) => parts.forEach((p, i) => p.g.classList.toggle('done', i !== n && done.has(i)));
   function focus(n, done) {
     cur = n;
@@ -150,13 +151,13 @@ export function hero(svg, caption) {
     lit.to(Object.fromEntries(parts.map((_, i) => [`o${i}`, i === n ? 1 : done.has(i) ? 0.55 : 0.22])), SPRING.smooth);
     mark(n, done);
   }
-  if (caption) caption.textContent = t('heroPart', { name: PROJECTS[0].id, n: 1, N });
+  if (caption) caption.textContent = t('heroPart', { name: PROJECTS[0].id, svc: t('sv0'), n: 1, N });
 
   const api = {
     /** Language changed: redraw the words inside the picture. */
     relabel() {
       if (rowsText) rowsText.textContent = t('hRows');
-      if (caption) caption.textContent = t('heroPart', { name: PROJECTS[cur].id, n: cur + 1, N });
+      if (caption) caption.textContent = t('heroPart', { name: PROJECTS[cur].id, svc: t(`sv${cur}`), n: cur + 1, N });
     },
   };
 
