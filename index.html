@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>kvyvo — маленькие вещи всерьёз</title>
+<meta name="description" content="Открытые проекты kvyvo: kalka — световой стол из экрана, nickcheck — поиск свободного ника на 20 сервисах, whoami-bot и books-scraper.">
+<meta name="theme-color" content="#ECEAE4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E0E0D" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="canonical" href="https://kvyvo.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kvyvo.github.io/">
+<meta property="og:title" content="kvyvo — маленькие вещи всерьёз">
+<meta property="og:description" content="kalka, nickcheck, whoami-bot, books-scraper. Открытый код, MIT.">
+<meta property="og:image" content="https://kvyvo.github.io/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<script>
+  // before first paint: pinned theme, and a flag that lets arrivals start hidden
+  document.documentElement.classList.add('js');
+  try { var m = localStorage.getItem('kvyvo.theme'); if (m === 'dark' || m === 'light') document.documentElement.dataset.theme = m; } catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&family=Geist+Mono:wght@400..500&display=swap">
+<link rel="stylesheet" href="css/site.css">
+<link rel="modulepreload" href="js/app.js">
+</head>
+<body>
+
+<!-- the island: one shape for where-you-are, toasts and the command palette -->
+<dialog id="island" aria-label="kvyvo">
+  <div class="isl" id="islShape">
+    <button class="isl-l isl-idle" id="islIdle" type="button">
+      <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="3.5"/><path d="M8 2v12M2 8h12"/></svg>
+      <span class="sw-t" id="islSummary">4 проекта</span>
+      <svg class="ring" id="islRing" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" pathLength="100"/><circle id="islRingFg" cx="10" cy="10" r="7.5" pathLength="100"/></svg>
+      <kbd class="isl-kbd" id="paletteKey">⌘K</kbd>
+    </button>
+    <div class="isl-l isl-toast" id="islToast"><span class="isl-ic" aria-hidden="true"></span><span id="toastText"></span></div>
+    <div class="isl-l isl-pal" id="islPal">
+      <div class="pal-in">
+        <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg>
+        <input id="palInput" type="text" role="combobox" aria-expanded="true" aria-controls="palList" data-i18n-aria-label="palAria" aria-label="Команды" autocomplete="off" spellcheck="false">
+        <kbd>esc</kbd>
+      </div>
+      <div class="pal-list"><div class="pal-hi" id="palHi"></div><ul id="palList" role="listbox"></ul></div>
+    </div>
+  </div>
+</dialog>
+<div class="sr" aria-live="polite" id="live"></div>
+
+<header class="top">
+  <a class="brand" href="./" aria-label="kvyvo">
+    <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="3.5"/><path d="M8 2v12M2 8h12"/></svg>
+    <span>kvyvo</span>
+  </a>
+  <div class="top-actions">
+    <a class="plain" href="https://github.com/kvyvo" aria-label="GitHub"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 13.5c-3 .9-3-1.5-4.2-1.8M10 15v-2.4c0-.7.1-1 .5-1.4 2-.2 3.9-1 3.9-4.4 0-.9-.3-1.7-.9-2.3.3-.8.3-1.7-.1-2.4 0 0-.7-.2-2.4.9a8 8 0 0 0-4.2 0C5.2 1 4.5 1.2 4.5 1.2c-.4.7-.4 1.6-.1 2.4-.6.6-.9 1.4-.9 2.3 0 3.4 1.9 4.2 3.9 4.4-.4.4-.5.8-.5 1.4V15"/></svg></a>
+    <button class="plain" type="button" id="langBtn" data-i18n="langBtn" data-i18n-aria-label="langAria" aria-label="Switch to English">EN</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero" id="top">
+    <div class="hero-text">
+      <p class="eyebrow rv" data-i18n="eyebrow">Открытый код · MIT · 4 проекта</p>
+      <h1 class="rv" style="--d:60ms" data-i18n="heroTitle">Маленькие вещи всерьёз</h1>
+      <p class="lead rv" style="--d:120ms" data-i18n="heroLead">Световой стол из экрана ноутбука, генератор ников с проверкой на 20 сервисах, телеграм-бот и скрапер. Статика без сборки, Python без лишнего, тесты без сети.</p>
+      <div class="hero-cta rv" style="--d:180ms">
+        <a class="btn primary big" href="https://kvyvo.github.io/kalka/"><span data-i18n="heroOpen">Открыть kalka</span><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg></a>
+        <a class="btn secondary big" href="#work"><span data-i18n="heroAll">Все проекты</span><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M4 9l4 4 4-4"/></svg></a>
+      </div>
+    </div>
+    <figure class="hero-art rv" style="--d:120ms">
+      <svg id="heroSvg" role="group" data-i18n-aria-label="heroAria" aria-label="Лист из четырёх частей: экран под листом подсвечивает по очереди каждый проект"></svg>
+      <figcaption class="hero-cap"><span class="dot" aria-hidden="true"></span><span class="sw-t" id="heroCap">kalka · проект 1 из 4</span></figcaption>
+    </figure>
+  </section>
+
+  <section class="sec" id="work" aria-labelledby="workTitle">
+    <header class="sec-head rv">
+      <p class="eyebrow" data-i18n="secWork">01 — проекты</p>
+      <h2 id="workTitle" data-i18n="workTitle">Что сделано</h2>
+      <p class="sec-lead" data-i18n="workLead">Каждый проект решает одну задачу до конца: с тестами, README на двух языках там, где это нужно, и без лишних зависимостей.</p>
+    </header>
+
+    <article class="card feature rv" id="p-kalka">
+      <div>
+        <div class="card-head"><span class="num">1</span><span class="name">kalka</span><span class="chip" data-i18n="kTag">Веб · PWA</span></div>
+        <h3 data-i18n="kTitle">Световой стол из экрана</h3>
+        <p data-i18n="kText">Любая картинка переносится на бумагу в натуральную величину: экран показывает её по частям, ты кладёшь лист сверху и обводишь. Экран определяется сам, масштаб проверяется банковской картой.</p>
+        <ul class="facts">
+          <li data-i18n="kF1">JPG · PNG · SVG · PDF</li>
+          <li data-i18n="kF2">A4…A0 и свой размер</li>
+          <li data-i18n="kF3">офлайн · RU/EN · ⌘K</li>
+          <li data-i18n="kF4">25 unit + 15 e2e</li>
+        </ul>
+        <div class="btnrow">
+          <a class="btn primary big" href="https://kvyvo.github.io/kalka/"><span data-i18n="kOpen">Открыть kalka</span><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg></a>
+          <a class="btn secondary big" href="https://github.com/kvyvo/kalka"><span data-i18n="source">Исходники</span></a>
+        </div>
+      </div>
+      <figure class="shot">
+        <img class="shot-light" src="assets/kalka-light.jpg" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="kAlt" alt="Kalka: настройка картинки и план листа A3 из частей">
+        <img class="shot-dark" src="assets/kalka-dark.jpg" width="1600" height="1000" loading="lazy" decoding="async" data-i18n-alt="kAlt" alt="Kalka: настройка картинки и план листа A3 из частей">
+      </figure>
+    </article>
+
+    <div class="grid3">
+      <article class="card proj rv" id="p-nickcheck">
+        <div class="card-head"><span class="num">2</span><span class="name">nickcheck</span><span class="chip" data-i18n="nTag">Python · CLI</span></div>
+        <h3 data-i18n="nTitle">Свободный ник за минуту</h3>
+        <p data-i18n="nText">Генерирует короткие произносимые псевдонимы и параллельно проверяет их на GitHub, npm, PyPI, Docker Hub, Telegram и ещё 15 сервисах. Свободные домены ищет через RDAP.</p>
+<pre class="well"><span class="p">$ </span>pip install -r requirements.txt
+<span class="p">$ </span>python nickcheck.py kvaro zvelo</pre>
+        <ul class="facts"><li data-i18n="nF">20 сервисов · RDAP · 31 тест</li></ul>
+        <div class="btnrow"><a class="link" href="https://github.com/kvyvo/nickcheck">GitHub<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg></a></div>
+      </article>
+
+      <article class="card proj rv" id="p-whoami-bot" style="--d:80ms">
+        <div class="card-head"><span class="num">3</span><span class="name">whoami-bot</span><span class="chip" data-i18n="wTag">Python · Telegram</span></div>
+        <h3 data-i18n="wTitle">Что телеграм рассказывает о тебе боту</h3>
+        <p data-i18n="wText">Команда /me собирает карточку: id, имя, username, язык, premium, био, фото — и отдельно то, чего бот не видит. Плюс кубики и печенье с предсказанием.</p>
+<pre class="well"><span class="a">/me</span>       <span data-i18n="wc1">что бот обо мне знает</span>
+<span class="a">/roll</span>     <span data-i18n="wc2">бросить кубик</span>
+<span class="a">/fortune</span>  <span data-i18n="wc3">печенье с предсказанием</span></pre>
+        <ul class="facts"><li data-i18n="wF">aiogram 3.31 · rich messages · 11 тестов</li></ul>
+        <div class="btnrow"><a class="link" href="https://github.com/kvyvo/whoami-bot">GitHub<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg></a></div>
+      </article>
+
+      <article class="card proj rv" id="p-books-scraper" style="--d:160ms">
+        <div class="card-head"><span class="num">4</span><span class="name">books-scraper</span><span class="chip" data-i18n="bTag">Python · данные</span></div>
+        <h3 data-i18n="bTitle">Каталог в Excel</h3>
+        <p data-i18n="bText">Проходит все страницы books.toscrape.com и собирает 1000 книг: название, цена, наличие. Результат — одна таблица.</p>
+<pre class="well"><span class="p">$ </span>python скрап.py
+Сохранено книг: 1000
+<span class="p">→ </span>books.xlsx</pre>
+        <ul class="facts"><li data-i18n="bF">requests · BeautifulSoup · pandas</li></ul>
+        <div class="btnrow"><a class="link" href="https://github.com/kvyvo/books-scraper">GitHub<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg></a></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="sec" id="how" aria-labelledby="howTitle">
+    <header class="sec-head rv">
+      <p class="eyebrow" data-i18n="secHow">02 — подход</p>
+      <h2 id="howTitle" data-i18n="howTitle">Как это сделано</h2>
+      <p class="sec-lead" data-i18n="howLead">Несколько правил, которые повторяются от проекта к проекту.</p>
+    </header>
+
+    <div class="grid4">
+      <article class="card tile rv">
+        <span class="glyph"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="12" rx="2.5"/><path d="M6.5 6.5 5 8l1.5 1.5M9.5 6.5 11 8l-1.5 1.5"/></svg></span>
+        <h3 data-i18n="t1">Без сборки</h3>
+        <p data-i18n="t1x">ES-модули как есть. В kalka ~2 200 строк JS и одна зависимость, только для разработки. Этот сайт устроен так же.</p>
+      </article>
+      <article class="card tile rv" style="--d:70ms">
+        <span class="glyph"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8 13 3.8V8c0 3-2.2 5-5 6.2C5.2 13 3 11 3 8V3.8z"/><path d="m5.8 8 1.6 1.6 3-3.2"/></svg></span>
+        <h3 data-i18n="t2">Тесты без сети</h3>
+        <p data-i18n="t2x">У nickcheck 31 тест, у whoami-bot 11: все HTTP-ответы подменены, токен не нужен. Kalka гоняет 15 сценариев в Chromium и WebKit.</p>
+      </article>
+      <article class="card tile rv" style="--d:140ms">
+        <span class="glyph"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg></span>
+        <h3 data-i18n="t3">Данные остаются у тебя</h3>
+        <p data-i18n="t3x">Kalka работает в браузере и офлайн: файл не покидает устройство, прогресс лежит в IndexedDB. Регистрации нет нигде.</p>
+      </article>
+      <article class="card tile rv" style="--d:210ms">
+        <span class="glyph"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 12.5C3 12.5 3.5 3 6 3s2 7.5 3.8 7.5S11.5 6.5 13 6.5c.9 0 1.2 1 1.5 1.5"/></svg></span>
+        <h3 data-i18n="t4">Движение на пружинах</h3>
+        <p data-i18n="t4x">Пружины в замкнутой форме, как duration и bounce в SwiftUI. Прерываются без рывков; при «уменьшить движение» всё встаёт на место сразу.</p>
+      </article>
+    </div>
+
+    <div class="stats rv">
+      <div><b>4</b><span data-i18n="s1">открытых проекта</span></div>
+      <div><b>82</b><span data-i18n="s2">автотеста</span></div>
+      <div><b>20</b><span data-i18n="s3">сервисов в nickcheck</span></div>
+      <div><b>0</b><span data-i18n="s4">фреймворков на фронтенде</span></div>
+    </div>
+
+    <div class="stack rv">
+      <span class="label" data-i18n="stackLabel">Стек</span>
+      <span class="chip">JavaScript</span><span class="chip">ES modules</span><span class="chip">PWA</span><span class="chip">Web Workers</span><span class="chip">Playwright</span><span class="chip">Python</span><span class="chip">aiogram</span><span class="chip">requests</span><span class="chip">BeautifulSoup</span><span class="chip">pandas</span><span class="chip">RDAP</span><span class="chip">GitHub Actions</span>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span><span data-i18n="foot">kvyvo — открытый код, MIT.</span> <span data-i18n="footNote">Сайт без сборки и фреймворков, как kalka.</span></span>
+    <span class="links"><a href="https://github.com/kvyvo">GitHub</a><a href="https://kvyvo.github.io/kalka/">kalka</a></span>
+  </footer>
+</main>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
